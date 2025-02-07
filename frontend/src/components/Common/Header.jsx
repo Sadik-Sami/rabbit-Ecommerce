@@ -1,13 +1,14 @@
 import TopBar from '../Layout/TopBar';
-
+import Navbar from './Navbar';
 const Header = () => {
 	return (
-		<div>
+		<header>
 			{/* Topbar */}
 			<TopBar />
 			{/* Navbar */}
+			<Navbar />
 			{/* Cart Drawer */}
-		</div>
+		</header>
 	);
 };
 
