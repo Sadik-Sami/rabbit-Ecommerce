@@ -14,13 +14,13 @@ const AdminSidebar = () => {
 				</Link>
 			</div>
 			<h2 className='text-xl font-medium mb-6 text-center'>Admin Dashboard</h2>
-			<nav className='flex flex-col space-y-4'>
+			<nav className='flex flex-col space-y-2'>
 				<NavLink
 					to='/admin/users'
 					className={({ isActive }) =>
 						isActive
-							? 'bg-gray-700 text-white py-3 rounded flex items-center space-x-2'
-							: 'text-gray-300 hover:bg-gray-700 hover:text-white py3 px-4 rounded flex items-center space-x-2'
+							? 'bg-gray-700 text-white py-3 px-2 rounded flex items-center space-x-2'
+							: 'text-gray-300 hover:bg-gray-700 hover:text-white py-3 px-4 rounded flex items-center space-x-2'
 					}>
 					<FaUser />
 					<span>Users</span>
@@ -29,8 +29,8 @@ const AdminSidebar = () => {
 					to='/admin/products'
 					className={({ isActive }) =>
 						isActive
-							? 'bg-gray-700 text-white py-3 rounded flex items-center space-x-2'
-							: 'text-gray-300 hover:bg-gray-700 hover:text-white py3 px-4 rounded flex items-center space-x-2'
+							? 'bg-gray-700 text-white py-3 px-2 rounded flex items-center space-x-2'
+							: 'text-gray-300 hover:bg-gray-700 hover:text-white py-3 px-4 rounded flex items-center space-x-2'
 					}>
 					<FaBoxOpen />
 					<span>Products</span>
@@ -39,8 +39,8 @@ const AdminSidebar = () => {
 					to='/admin/orders'
 					className={({ isActive }) =>
 						isActive
-							? 'bg-gray-700 text-white py-3 rounded flex items-center space-x-2'
-							: 'text-gray-300 hover:bg-gray-700 hover:text-white py3 px-4 rounded flex items-center space-x-2'
+							? 'bg-gray-700 text-white py-3 px-2 rounded flex items-center space-x-2'
+							: 'text-gray-300 hover:bg-gray-700 hover:text-white py-3 px-4 rounded flex items-center space-x-2'
 					}>
 					<FaClipboardList />
 					<span>Orders</span>
@@ -49,8 +49,8 @@ const AdminSidebar = () => {
 					to='/admin/shop'
 					className={({ isActive }) =>
 						isActive
-							? 'bg-gray-700 text-white py-3 rounded flex items-center space-x-2'
-							: 'text-gray-300 hover:bg-gray-700 hover:text-white py3 px-4 rounded flex items-center space-x-2'
+							? 'bg-gray-700 text-white py-3 px-2 rounded flex items-center space-x-2'
+							: 'text-gray-300 hover:bg-gray-700 hover:text-white py-3 px-4 rounded flex items-center space-x-2'
 					}>
 					<FaStore />
 					<span>Shop</span>
