@@ -8,6 +8,12 @@ const UserManagement = () => {
 			email: 'john@example.com',
 			role: 'admin',
 		},
+		{
+			_id: 2,
+			name: 'Mohn Doe',
+			email: 'mohn@example.com',
+			role: 'customer',
+		},
 	];
 	const [formData, setFormData] = useState({
 		name: '',
