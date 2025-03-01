@@ -26,7 +26,7 @@ const CollectionPage = () => {
 
 	// Simulate product load with useEffect
 	useEffect(() => {
-		set`Timeout`(() => {
+		setTimeout(() => {
 			const fetchedProducts = [
 				{
 					_id: 1,
