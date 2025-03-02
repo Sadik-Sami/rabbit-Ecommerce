@@ -50,12 +50,12 @@ To set up and run the backend locally, follow these steps:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/your-repo-name.git
+   git clone https://github.com/Sadik-Sami/rabbit-Ecommerce.git
    ```
 
 2. **Navigate to the backend directory**:
    ```bash
-   cd your-repo-name/backend
+   cd rabbit-Ecommerce/backend
    ```
 
 3. **Install dependencies**:
