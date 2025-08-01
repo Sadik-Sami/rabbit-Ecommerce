@@ -1,211 +1,330 @@
-
 ---
 
-# MERN eCommerce Backend
+# Rabbit MERN eCommerce Backend
 
-This is the backend for a MERN (MongoDB, Express.js, React, Node.js) eCommerce application. It provides the necessary APIs for user authentication, product management, and other eCommerce functionalities.
+Welcome to the backend for the Rabbit eCommerce platform!  
+This Node.js/Express/MongoDB API powers user authentication, product management, and shopping cart features for a modern eCommerce app.
 
 ---
 
 ## Table of Contents
 
 1. [Features](#features)
-2. [Technologies Used](#technologies-used)
-3. [Installation](#installation)
-4. [Environment Variables](#environment-variables)
-5. [API Endpoints](#api-endpoints)
-6. [Folder Structure](#folder-structure)
-7. [User Model](#user-model)
-8. [Contributing](#contributing)
-9. [License](#license)
+2. [Project Structure](#project-structure)
+3. [Models](#models)
+4. [API Routes & Examples](#api-routes--examples)
+5. [Installation](#installation)
+6. [Environment Variables](#environment-variables)
+7. [Contributing](#contributing)
+8. [License](#license)
 
 ---
 
 ## Features
 
-- **User Authentication**: Register, login, and manage user roles (customer/admin).
-- **Password Hashing**: Secure password storage using `bcryptjs`.
-- **MongoDB Integration**: Seamless connection to MongoDB for data storage.
-- **CORS Support**: Enable cross-origin requests for frontend integration.
-- **RESTful APIs**: Basic API structure for future eCommerce functionalities.
+- User registration, login, and JWT authentication
+- Admin/user roles
+- Product CRUD (admin only for create/update/delete)
+- Product filtering, search, and sorting
+- Shopping cart for guests and logged-in users
+- MongoDB/Mongoose integration
+- CORS support
 
 ---
 
-## Technologies Used
+## Project Structure
 
-### Backend
-- **Node.js**: JavaScript runtime for building the server.
-- **Express.js**: Web framework for building RESTful APIs.
-- **MongoDB**: NoSQL database for storing application data.
-- **Mongoose**: MongoDB object modeling for Node.js.
-- **bcryptjs**: Library for hashing passwords.
-- **dotenv**: Load environment variables from a `.env` file.
-- **cors**: Middleware to enable CORS.
+```
+backend/
+├── config/           # Database connection
+├── data/             # Seed data (products)
+├── middleware/       # Auth middleware
+├── models/           # Mongoose models (User, Product, Cart)
+├── routes/           # Express routes (users, products, cart)
+├── server.js         # App entry point
+├── seeder.js         # DB seeder script
+├── package.json
+└── .env
+```
+
+---
+
+## Models
+
+### User
+
+```js
+{
+  name: String,         // required
+  email: String,        // required, unique
+  password: String,     // required (hashed)
+  role: String,         // 'customer' (default) or 'admin'
+  createdAt, updatedAt
+}
+```
+
+### Product
+
+```js
+{
+  name: String,             // required
+  description: String,      // required
+  price: Number,            // required
+  discountPrice: Number,
+  countInStock: Number,     // required
+  sku: String,              // required, unique
+  category: String,         // required
+  brand: String,
+  sizes: [String],          // required
+  colors: [String],         // required
+  collections: String,      // required
+  material: String,
+  gender: String,           // 'Men', 'Women', 'Unisex'
+  images: [{ url, altText }],
+  isFeatured: Boolean,
+  isPublished: Boolean,
+  rating: Number,
+  numReviews: Number,
+  tags: [String],
+  user: ObjectId,           // admin who created
+  metaTitle, metaDescription, metaKeywords,
+  dimensions: { length, width, height },
+  weight: Number,
+  createdAt, updatedAt
+}
+```
+
+### Cart
+
+```js
+{
+  userId: ObjectId,      // for logged-in users
+  guestId: String,       // for guests
+  products: [
+    {
+      productId: ObjectId,
+      name: String,
+      image: String,
+      price: Number,
+      size: String,
+      color: String,
+      quantity: Number
+    }
+  ],
+  totalPrice: Number,
+  createdAt, updatedAt
+}
+```
+
+---
+
+## API Routes & Examples
+
+### Root
+
+- **GET /**  
+  _Welcome message_
+  ```json
+  { "message": "Welcome to Rabbit API" }
+  ```
+
+---
+
+### User Routes
+
+#### Register
+
+- **POST /api/users/register**
+  - Request:
+    ```json
+    { "name": "John", "email": "john@example.com", "password": "123456" }
+    ```
+  - Response:
+    ```json
+    {
+      "user": { "_id": "...", "name": "John", "email": "john@example.com", "role": "customer" },
+      "token": "JWT_TOKEN"
+    }
+    ```
+
+#### Login
+
+- **POST /api/users/login**
+  - Request:
+    ```json
+    { "email": "john@example.com", "password": "123456" }
+    ```
+  - Response:
+    ```json
+    {
+      "user": { "_id": "...", "name": "John", "email": "john@example.com", "role": "customer" },
+      "token": "JWT_TOKEN"
+    }
+    ```
+
+#### Profile
+
+- **GET /api/users/profile**  
+  _Requires Bearer token_
+  - Response:
+    ```json
+    {
+      "_id": "...",
+      "name": "John",
+      "email": "john@example.com",
+      "role": "customer",
+      "createdAt": "...",
+      "updatedAt": "..."
+    }
+    ```
+
+---
+
+### Product Routes
+
+#### Create Product (Admin only)
+
+- **POST /api/products**  
+  _Requires Bearer token (admin)_
+  - Request: (see Product model above)
+  - Response:
+    ```json
+    { "createdProduct": { ...productFields } }
+    ```
+
+#### Update Product (Admin only)
+
+- **PUT /api/products/:id**  
+  _Requires Bearer token (admin)_
+  - Request: (fields to update)
+  - Response:  
+    Updated product object
+
+#### Delete Product (Admin only)
+
+- **DELETE /api/products/:id**  
+  _Requires Bearer token (admin)_
+  - Response:
+    ```json
+    { "message": "Product Removed" }
+    ```
+
+#### Get All Products
+
+- **GET /api/products?query=...**
+  - Query params:  
+    `collection`, `size`, `color`, `gender`, `minPrice`, `maxPrice`, `sortBy`, `search`, `category`, `material`, `brand`, `limit`
+  - Response:  
+    Array of products
+
+#### Get Best Seller
+
+- **GET /api/products/best-seller**
+  - Response:  
+    Single product with highest rating
+
+#### Get New Arrivals
+
+- **GET /api/products/new-arrivals**
+  - Response:  
+    Latest 8 products
+
+#### Get Product by ID
+
+- **GET /api/products/:id**
+  - Response:  
+    Product object
+
+#### Get Similar Products
+
+- **GET /api/products/similar/:id**
+  - Response:  
+    Up to 4 similar products (same gender & category)
+
+---
+
+### Cart Routes
+
+#### Add to Cart
+
+- **POST /api/cart**
+  - Request:
+    ```json
+    {
+      "productId": "...",
+      "quantity": 2,
+      "size": "M",
+      "color": "Red",
+      "guestId": "guest_123",   // or userId if logged in
+      "userId": "..."           // optional
+    }
+    ```
+  - Response:  
+    Cart object
+
+#### Update Cart Item
+
+- **PUT /api/cart**
+  - Request:
+    ```json
+    {
+      "productId": "...",
+      "quantity": 3,
+      "size": "M",
+      "color": "Red",
+      "guestId": "guest_123",   // or userId if logged in
+      "userId": "..."           // optional
+    }
+    ```
+  - Response:  
+    Updated cart object
 
 ---
 
 ## Installation
 
-To set up and run the backend locally, follow these steps:
-
-1. **Clone the repository**:
+1. **Clone the repository**
    ```bash
    git clone https://github.com/Sadik-Sami/rabbit-Ecommerce.git
-   ```
-
-2. **Navigate to the backend directory**:
-   ```bash
    cd rabbit-Ecommerce/backend
    ```
 
-3. **Install dependencies**:
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-4. **Set up environment variables**:
-   Create a `.env` file in the root of the backend directory and add the following variables:
-   ```env
+3. **Set up environment variables**  
+   Create a `.env` file:
+   ```
    PORT=5000
-   MONGO_URI=mongodb+srv://your-database-connection-string
+   MONGO_URI=your-mongodb-uri
+   JWT_SECRET=your-secret
    ```
 
-5. **Start the server**:
+4. **Seed the database** (optional)
+   ```bash
+   npm run seed
+   ```
+
+5. **Start the server**
    ```bash
    npm start
-   ```
-   For development with auto-restart, use:
-   ```bash
+   # or for development:
    npm run dev
    ```
-
-6. **Verify the server is running**:
-   Open your browser or Postman and navigate to `http://localhost:5000`. You should see the message: `Welcome to Rabbit API`.
 
 ---
 
 ## Environment Variables
 
-The following environment variables are required for the backend to function properly:
-
-- `PORT`: The port on which the server will run (default: `5000`).
-- `MONGO_URI`: The connection string for your MongoDB database.
-
-Example `.env` file:
-```env
-PORT=5000
-MONGO_URI=mongodb+srv://username:password@cluster0.mongodb.net/ecommerce?retryWrites=true&w=majority
-```
-
----
-
-## API Endpoints
-
-### Base URL
-`http://localhost:5000`
-
-### Available Endpoints
-- **GET `/`**: Welcome message.
-  ```json
-  {
-    "message": "Welcome to Rabbit API"
-  }
-  ```
-
-### Future Endpoints (To be implemented)
-- **User Authentication**:
-  - `POST /api/auth/register`: Register a new user.
-  - `POST /api/auth/login`: Login an existing user.
-- **Product Management**:
-  - `GET /api/products`: Get all products.
-  - `POST /api/products`: Create a new product (admin only).
-  - `GET /api/products/:id`: Get a single product by ID.
-  - `PUT /api/products/:id`: Update a product (admin only).
-  - `DELETE /api/products/:id`: Delete a product (admin only).
-
----
-
-## Folder Structure
-
-```
-backend/
-├── config/
-│   └── db.js               # MongoDB connection setup
-├── models/
-│   └── User.js             # User schema and model
-├── server.js               # Entry point for the backend
-├── package.json            # Project dependencies and scripts
-├── package-lock.json       # Lock file for dependencies
-└── .env                    # Environment variables (not committed to Git)
-```
-
----
-
-## User Model
-
-The `User` model defines the schema for user data in the MongoDB database. It includes fields for user information, password hashing, and role management.
-
-### Schema Definition
-```javascript
-const userSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, trim: true },
-    email: {
-      type: String,
-      required: true,
-      trim: true,
-      unique: true,
-      match: [/.+\@.+\..+/, "Please enter a valid email address"],
-    },
-    password: {
-      type: String,
-      required: true,
-      minLength: 6,
-    },
-    role: {
-      type: String,
-      enum: ["customer", "admin"],
-      default: "customer",
-    },
-  },
-  { timestamps: true }
-);
-```
-
-### Features
-1. **Password Hashing**:
-   - Passwords are hashed using `bcryptjs` before saving to the database.
-   - The `pre('save')` middleware ensures the password is hashed whenever a user is created or updated.
-
-   ```javascript
-   userSchema.pre("save", async function (next) {
-     if (!this.isModified("password")) return next();
-     const salt = await bcrypt.genSalt(10);
-     this.password = await bcrypt.hash(this.password, salt);
-     next();
-   });
-   ```
-
-2. **Password Matching**:
-   - The `matchPassword` method compares the entered password with the hashed password stored in the database.
-
-   ```javascript
-   userSchema.methods.matchPassword = async function (enteredPassword) {
-     return await bcrypt.compare(enteredPassword, this.password);
-   };
-   ```
-
-3. **Role Management**:
-   - Users can have one of two roles: `customer` (default) or `admin`.
-
-4. **Timestamps**:
-   - The `timestamps` option automatically adds `createdAt` and `updatedAt` fields to the schema.
+- `PORT` - Server port (default: 5000)
+- `MONGO_URI` - MongoDB connection string
+- `JWT_SECRET` - Secret for JWT signing
 
 ---
 
 ## Contributing
-
-Contributions are welcome! If you'd like to contribute, please follow these steps:
 
 1. Fork the repository.
 2. Create a new branch for your feature or bugfix.
