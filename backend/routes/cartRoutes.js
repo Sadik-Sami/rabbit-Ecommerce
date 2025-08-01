@@ -151,4 +151,67 @@ router.get('/', async (req, res) => {
 	}
 });
 
+// @route POST /api/cart/merge
+// @desc Merge guest cart with user cart
+// @access Private
+router.post('/merge', protect, async (req, res) => {
+	const { guestId } = req.body;
+	try {
+		// Find the guest cart and the user cart
+		const guestCart = await Cart.findOne({ guestId: guestId });
+		const userCart = await Cart.findOne({ userId: req.user._id });
+
+		if (guestCart) {
+			// Checking for guestCart availability
+			if (guestCart.products.length === 0) {
+				// Checking the cart for products
+				return res.status(400).json({ message: 'Guest cart is empty, nothing to merge' });
+			}
+			if (userCart) {
+				//NOTE: Merge products from guest cart to user cart
+				guestCart.products.forEach((guestItem) => {
+					const productIndex = userCart.products.findIndex(
+						(item) =>
+							item.productId.toString() === guestItem.productId.toString() &&
+							item.size === guestItem.size &&
+							item.color === guestItem.color
+					);
+					if (productIndex > -1) {
+						//NOTE: If the items exists in the user cart, update the quantity
+						userCart.products[productIndex].quantity += guestItem.quantity;
+					} else {
+						userCart.products.push(guestItem);
+					}
+				});
+				userCart.totalPrice = userCart.products.reduce((acc, item) => acc + item.price * item.quantity, 0);
+				await userCart.save();
+
+				//NOTE: Remove the guest cart after merging
+				try {
+					await Cart.findOneAndDelete({ guestId });
+				} catch (error) {
+					console.error('Error deleting guest cart:', error);
+				}
+				res.status(200).json(userCart);
+			} else {
+				//NOTE: If the user has no existing cart, assign the guest cart to the user
+				guestCart.userId = req.user._id;
+				guestCart.guestId = undefined;
+				await guestCart.save();
+
+				res.status(200).json(guestCart);
+			}
+		} else {
+			if (userCart) {
+				//NOTE: Guest cart has already been merged, return user cart
+				return res.status(200).json(userCart);
+			}
+			res.status(404).json({ message: 'Guest cart not found' });
+		}
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ message: 'Server error' });
+	}
+});
+
 module.exports = router;
