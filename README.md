@@ -279,6 +279,48 @@ backend/
   - Response:  
     Updated cart object
 
+#### Remove Product from Cart
+
+- **DELETE /api/cart**
+  - Request:
+    ```json
+    {
+      "productId": "...",
+      "size": "M",
+      "color": "Red",
+      "guestId": "guest_123",   // or userId if logged in
+      "userId": "..."           // optional
+    }
+    ```
+  - Response:  
+    Updated cart object
+
+#### Get Cart
+
+- **GET /api/cart**
+  - Query params:
+    - `guestId` (for guests)
+    - `userId` (for logged-in users)
+  - Example:
+    ```
+    /api/cart?guestId=guest_123
+    ```
+  - Response:  
+    Cart object
+
+#### Merge Guest Cart with User Cart
+
+- **POST /api/cart/merge**
+  - _Requires Bearer token (user must be logged in)_
+  - Request:
+    ```json
+    {
+      "guestId": "guest_123"
+    }
+    ```
+  - Response:  
+    Merged cart object
+
 ---
 
 ## Installation
